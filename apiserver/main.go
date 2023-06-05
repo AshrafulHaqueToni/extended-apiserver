@@ -31,7 +31,7 @@ func main() {
 	if err != nil {
 		log.Fatalln(err)
 	}
-	err = store.NewCA("apiserver")
+	err = store.InitCA("apiserver")
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -58,7 +58,7 @@ func main() {
 		log.Fatalln(err)
 	}
 	// ------------------------------------------------------------------------
-	rhStore, err := certstore.NewCertStore(fs, "/tmp/apiserver")
+	rhStore, err := certstore.NewCertStore(fs, "/tmp/extended-apiserver")
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -85,7 +85,7 @@ func main() {
 	//-------------------------------------------------------------------------
 	easCACertPool := x509.NewCertPool()
 	if proxy {
-		easStore, err := certstore.NewCertStore(fs, "/tmp/apiserver")
+		easStore, err := certstore.NewCertStore(fs, "/tmp/extended-apiserver")
 		if err != nil {
 			log.Fatalln(err)
 		}
@@ -113,8 +113,6 @@ func main() {
 		w.WriteHeader(http.StatusOK)
 		fmt.Fprintf(w, "Resource: %v\n", vars["resource"])
 	})
-	r.HandleFunc("/", handler)
-	srv.ListenAndServe(r)
 
 	if proxy {
 		r.HandleFunc("/database/{resource}", func(w http.ResponseWriter, r *http.Request) {
@@ -141,6 +139,7 @@ func main() {
 
 			resp, err := client.Do(req)
 			if err != nil {
+				fmt.Println("hellloooooooooooooooooo")
 				w.WriteHeader(http.StatusInternalServerError)
 				fmt.Fprintf(w, "error: %v\n", err.Error())
 				return

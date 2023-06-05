@@ -28,7 +28,7 @@ func main() {
 	if err != nil {
 		log.Fatalln(err)
 	}
-	err = store.NewCA("database")
+	err = store.InitCA("database")
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -56,7 +56,7 @@ func main() {
 	}
 
 	//---------------------------------------------------------------------
-	apiserverStore, err := certstore.NewCertStore(fs, "/tmp/apiserver")
+	apiserverStore, err := certstore.NewCertStore(fs, "/tmp/extended-apiserver")
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -70,7 +70,7 @@ func main() {
 
 	//---------------------------------------------------------------------
 	rhCACertPool := x509.NewCertPool()
-	rhStore, err := certstore.NewCertStore(fs, "/tmp/apiserver")
+	rhStore, err := certstore.NewCertStore(fs, "/tmp/extended-apiserver")
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -90,6 +90,10 @@ func main() {
 		},
 		CertFile: store.CertFile("tls"),
 		KeyFile:  store.KeyFile("tls"),
+	}
+	if proxy {
+		cfg.CACertFiles = append(cfg.CACertFiles, apiserverStore.CertFile("ca"))
+		cfg.CACertFiles = append(cfg.CACertFiles, rhStore.CertFile("ca"))
 	}
 	srv := server.NewGenericServer(cfg)
 
